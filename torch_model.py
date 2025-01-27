@@ -12,12 +12,9 @@ class PDNModel(nn.Module):
             Defaults to ``False``.
     """
 
-    def __init__(
-        self, out_channels: int, padding: bool = False, disable_batch_norm: bool = False
-    ) -> None:
+    def __init__(self, out_channels: int, padding: bool = False) -> None:
         super().__init__()
         pad_mult = 1 if padding else 0
-        self.disable_batch_norm = disable_batch_norm
         self.conv1 = nn.Conv2d(3, 128, kernel_size=4, stride=1, padding=3 * pad_mult)
         self.conv2 = nn.Conv2d(128, 256, kernel_size=4, stride=1, padding=3 * pad_mult)
         self.conv3 = nn.Conv2d(256, 256, kernel_size=3, stride=1, padding=1 * pad_mult)
@@ -37,9 +34,6 @@ class PDNModel(nn.Module):
             dict: Dictionary containing intermediate results before and after ReLU.
         """
         results = {}
-
-        # if not self.disable_batch_norm:
-        #     x = imagenet_norm_batch(x)
 
         # Step 1: Conv1
         x1_pre_relu = self.conv1(x)
@@ -63,8 +57,8 @@ class PDNModel(nn.Module):
 
         # Step 5: Conv3
         x3_pre_relu = self.conv3(x2_avg)
-        # x3 = F.relu(x3_pre_relu)
-        x3 = F.leaky_relu(x3_pre_relu)
+        x3 = F.relu(x3_pre_relu)
+        # x3 = F.leaky_relu(x3_pre_relu)
         results["layer3"] = x3_pre_relu
         results["layer3_act"] = x3
 
